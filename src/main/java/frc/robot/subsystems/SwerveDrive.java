@@ -12,7 +12,7 @@ import com.kauailabs.navx.frc.AHRS;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class DriveSubsystem extends SubsystemBase {
+public class SwerveDrive extends SubsystemBase {
 
   // Create FRONT LEFT swerve drive module.
   private final SwerveModule m_frontLeft = new SwerveModule(
@@ -53,7 +53,7 @@ public class DriveSubsystem extends SubsystemBase {
       });
 
   /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {
+  public SwerveDrive() {
   }
 
   @Override
@@ -96,18 +96,18 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Method to drive the robot using joystick info.
+   * Method to drive the robot using input from the driver's Xbox controller.
    *
    * @param xSpeed        Speed of the robot in the x direction (forward).
    * @param ySpeed        Speed of the robot in the y direction (sideways).
-   * @param omega         Angular rotation rate of the robot.
+   * @param theta         Angular rate of the robot (rotation).
    * @param fieldRelative Whether the provided speeds are relative to the field.
    */
-  public void drive(double xSpeed, double ySpeed, double omega, boolean fieldRelative) {
+  public void drive(double xSpeed, double ySpeed, double theta, boolean fieldRelative) {
 
     xSpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
     ySpeed *= DriveConstants.kMaxSpeedMetersPerSecond;
-    omega *= DriveConstants.kMaxAngularSpeed;
+    theta *= DriveConstants.kMaxAngularSpeed;
 
     ChassisSpeeds desiredChassisSpeeds;
 
@@ -115,10 +115,10 @@ public class DriveSubsystem extends SubsystemBase {
       desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
           xSpeed,
           ySpeed,
-          omega,
+          theta,
           Rotation2d.fromDegrees(navX.getAngle()));
     } else {
-      desiredChassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, omega);
+      desiredChassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, theta);
     }
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
@@ -130,9 +130,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_backRight.setDesiredState(swerveModuleStates[3]);
   }
 
-  /**
-   * Sets the wheels into an X formation to prevent movement.
-   */
+  /** Sets the wheels into an X formation to prevent movement. */
   public void setX() {
     m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
     m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
