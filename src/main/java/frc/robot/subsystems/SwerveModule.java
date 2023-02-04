@@ -25,6 +25,7 @@ public class SwerveModule {
   private final SparkMaxPIDController m_drivingPID;
   private final SparkMaxPIDController m_turningPID;
 
+  // Set the initial module state to 0.0 speed at 0 degrees.
   private SwerveModuleState m_desiredState = new SwerveModuleState(
       0.0,
       new Rotation2d());
@@ -143,7 +144,7 @@ public class SwerveModule {
         updatedDesiredState,
         new Rotation2d(m_turningEncoder.getPosition()));
 
-    // Set the driving and turning motor controlers to the optimized setpoints.
+    // Set the driving and turning motor PIDs to the optimized setpoints.
     m_drivingPID.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
     m_turningPID.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 

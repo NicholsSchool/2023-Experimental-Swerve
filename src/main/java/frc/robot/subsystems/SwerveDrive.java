@@ -64,7 +64,7 @@ public class SwerveDrive extends SubsystemBase {
           m_backRight.getPosition()
       });
 
-  /** Creates a new DriveSubsystem. */
+  /** Creates a new SwerveDrive. */
   public SwerveDrive() {
   }
 
@@ -246,4 +246,5 @@ public class SwerveDrive extends SubsystemBase {
   public double getTurnRate() {
     return navX.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
+  
 }

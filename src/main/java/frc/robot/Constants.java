@@ -13,12 +13,11 @@ public final class Constants {
   public static final class DriveConstants {
 
     // Note: To be increased with practice by the drive team.
-    public static final double governor = 0.6; // max percentage of driving motor output
+    public static final double governor = 0.5; // max percentage of driving motor output
 
-    // Driving Parameters - The allowed maximum speeds (not theoretical max).
+    // Driving Parameters - The allowed maximum speeds, not theoretical max.
     public static final double kMaxSpeedMetersPerSecond = 4.8 * governor; // max meters per second
     public static final double kMaxAngularSpeed = 2 * Math.PI; // max radians per second
-
     public static final double kDirectionSlewRate = 1.2; // radians per second
     public static final double kMagnitudeSlewRate = 1.8; // percent per second (1 = 100%)
     public static final double kRotationalSlewRate = 2.0; // percent per second (1 = 100%)
@@ -102,7 +101,7 @@ public final class Constants {
     public static final double kTurningMinOutput = -1;
     public static final double kTurningMaxOutput = 1;
 
-    public static final int kDrivingMotorCurrentLimit = 50; // amps
+    public static final int kDrivingMotorCurrentLimit = 40; // amps
     public static final int kTurningMotorCurrentLimit = 20; // amps
   }
 
@@ -126,7 +125,6 @@ public final class Constants {
     public static final double kPYController = 1;
     public static final double kPThetaController = 1;
 
-    // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
         kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
   }
@@ -134,4 +132,5 @@ public final class Constants {
   public static final class NeoMotorConstants {
     public static final double kMaxFreeSpeedRpm = 5676;
   }
+  
 }
