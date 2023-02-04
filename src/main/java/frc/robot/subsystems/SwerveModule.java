@@ -152,7 +152,7 @@ public class SwerveModule {
     m_desiredState = desiredState;
   }
 
-  /** Zeroes all the SwerveModule encoders. */
+  /** Resets all the SwerveModule encoders to zero. */
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
   }

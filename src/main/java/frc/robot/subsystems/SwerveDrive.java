@@ -44,14 +44,14 @@ public class SwerveDrive extends SubsystemBase {
   // Create NavX attitude and heading reference system (AHRS).
   private final AHRS navX = new AHRS(SPI.Port.kMXP);
 
-    // Slew rate filter variables for controlling lateral acceleration
-    private double m_currentRotation = 0.0;
-    private double m_currentTranslationDir = 0.0;
-    private double m_currentTranslationMag = 0.0;
-  
-    private SlewRateLimiter magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
-    private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
-    private double m_prevTime = WPIUtilJNI.now() * 1e-6;
+  // Slew rate filter variables for controlling lateral acceleration
+  private double m_currentRotation = 0.0;
+  private double m_currentTranslationDir = 0.0;
+  private double m_currentTranslationMag = 0.0;
+
+  private SlewRateLimiter magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
+  private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
+  private double m_prevTime = WPIUtilJNI.now() * 1e-6;
 
   // Create odometry class for tracking estimated robot pose.
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
@@ -122,38 +122,40 @@ public class SwerveDrive extends SubsystemBase {
     double ySpeedCommanded;
 
     if (rateLimit) {
-      // Convert XY to polar for rate limiting
+
+      // Convert X and Y to polar coordinates for rate limiting
       double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
       double inputTranslationMag = Math.sqrt(Math.pow(xSpeed, 2) + Math.pow(ySpeed, 2));
 
-      // Calculate the direction slew rate based on an estimate of the lateral acceleration
+      // Calculate the direction slew rate based on lateral acceleration estimatation
       double directionSlewRate;
       if (m_currentTranslationMag != 0.0) {
         directionSlewRate = Math.abs(DriveConstants.kDirectionSlewRate / m_currentTranslationMag);
       } else {
-        directionSlewRate = 500.0; //some high number that means the slew rate is effectively instantaneous
+        directionSlewRate = 500.0; // high number means the slew rate is effectively instantaneous
       }
-
 
       double currentTime = WPIUtilJNI.now() * 1e-6;
       double elapsedTime = currentTime - m_prevTime;
       double angleDif = SwerveUtils.AngleDifference(inputTranslationDir, m_currentTranslationDir);
-      if (angleDif < 0.45*Math.PI) {
-        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(m_currentTranslationDir, inputTranslationDir, directionSlewRate * elapsedTime);
+      if (angleDif < 0.45 * Math.PI) {
+        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
+            m_currentTranslationDir,
+            inputTranslationDir,
+            directionSlewRate * elapsedTime);
         m_currentTranslationMag = magLimiter.calculate(inputTranslationMag);
-      }
-      else if (angleDif > 0.85*Math.PI) {
-        if (m_currentTranslationMag > 1e-4) { //some small number to avoid floating-point errors with equality checking
-          // keep currentTranslationDir unchanged
+      } else if (angleDif > 0.85 * Math.PI) {
+        if (m_currentTranslationMag > 1e-4) { // small number to avoid floating-point errors with equality checking
           m_currentTranslationMag = magLimiter.calculate(0.0);
-        }
-        else {
+        } else {
           m_currentTranslationDir = SwerveUtils.WrapAngle(m_currentTranslationDir + Math.PI);
           m_currentTranslationMag = magLimiter.calculate(inputTranslationMag);
         }
-      }
-      else {
-        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(m_currentTranslationDir, inputTranslationDir, directionSlewRate * elapsedTime);
+      } else {
+        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
+            m_currentTranslationDir,
+            inputTranslationDir,
+            directionSlewRate * elapsedTime);
         m_currentTranslationMag = magLimiter.calculate(0.0);
       }
       m_prevTime = currentTime;
@@ -161,7 +163,6 @@ public class SwerveDrive extends SubsystemBase {
       xSpeedCommanded = m_currentTranslationMag * Math.cos(m_currentTranslationDir);
       ySpeedCommanded = m_currentTranslationMag * Math.sin(m_currentTranslationDir);
       m_currentRotation = rotLimiter.calculate(theta);
-
 
     } else {
       xSpeedCommanded = xSpeed;
@@ -172,18 +173,18 @@ public class SwerveDrive extends SubsystemBase {
     // Convert the commanded speeds into the correct units for the drivetrain
     double xSpeedDelivered = xSpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
     double ySpeedDelivered = ySpeedCommanded * DriveConstants.kMaxSpeedMetersPerSecond;
-    double rotDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
+    double thetaDelivered = m_currentRotation * DriveConstants.kMaxAngularSpeed;
 
     ChassisSpeeds desiredChassisSpeeds;
 
     if (fieldRelative) {
       desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-        xSpeedDelivered,
-        ySpeedDelivered,
-        rotDelivered,
+          xSpeedDelivered,
+          ySpeedDelivered,
+          thetaDelivered,
           Rotation2d.fromDegrees(navX.getAngle()));
     } else {
-      desiredChassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
+      desiredChassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, thetaDelivered);
     }
 
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(desiredChassisSpeeds);
@@ -195,7 +196,7 @@ public class SwerveDrive extends SubsystemBase {
     m_backRight.setDesiredState(swerveModuleStates[3]);
   }
 
-  /** Sets the wheels into an X formation to prevent movement. */
+  /** Sets the wheels into a defensive X formation to prevent movement. */
   public void setX() {
     m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
     m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
@@ -246,5 +247,5 @@ public class SwerveDrive extends SubsystemBase {
   public double getTurnRate() {
     return navX.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
   }
-  
+
 }
