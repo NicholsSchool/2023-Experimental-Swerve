@@ -43,10 +43,10 @@ public class RobotContainer {
     m_swerveDrive.setDefaultCommand(
         new RunCommand(
             () -> m_swerveDrive.drive(
-                MathUtil.applyDeadband(-m_driverXBoxController.getLeftY(), 0.06),
-                MathUtil.applyDeadband(-m_driverXBoxController.getLeftX(), 0.06),
-                MathUtil.applyDeadband(-m_driverXBoxController.getRightX(), 0.06),
-                true),
+                -MathUtil.applyDeadband(m_driverXBoxController.getLeftY(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverXBoxController.getLeftX(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverXBoxController.getRightX(), OIConstants.kDriveDeadband),
+                true, true),
             m_swerveDrive));
   }
 
@@ -71,6 +71,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
     // Create config for trajectory
     TrajectoryConfig config = new TrajectoryConfig(
         AutoConstants.kMaxSpeedMetersPerSecond,
@@ -108,6 +109,6 @@ public class RobotContainer {
     m_swerveDrive.resetOdometry(exampleTrajectory.getInitialPose());
 
     // Run path following command, then stop at the end.
-    return swerveControllerCommand.andThen(() -> m_swerveDrive.drive(0, 0, 0, false));
+    return swerveControllerCommand.andThen(() -> m_swerveDrive.drive(0, 0, 0, false, false));
   }
 }
