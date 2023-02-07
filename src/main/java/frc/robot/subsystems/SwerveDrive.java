@@ -56,7 +56,7 @@ public class SwerveDrive extends SubsystemBase {
   // Create odometry class for tracking estimated robot pose.
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
-      Rotation2d.fromDegrees(navX.getAngle()),
+      Rotation2d.fromDegrees(-navX.getAngle()),
       new SwerveModulePosition[] {
           m_frontLeft.getPosition(),
           m_frontRight.getPosition(),
@@ -72,7 +72,7 @@ public class SwerveDrive extends SubsystemBase {
   public void periodic() {
     // Update the odometry in the periodic block
     m_odometry.update(
-        Rotation2d.fromDegrees(navX.getAngle()),
+        Rotation2d.fromDegrees(-navX.getAngle()),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -97,7 +97,7 @@ public class SwerveDrive extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     m_odometry.resetPosition(
-        Rotation2d.fromDegrees(navX.getAngle()),
+        Rotation2d.fromDegrees(-navX.getAngle()),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
@@ -182,7 +182,7 @@ public class SwerveDrive extends SubsystemBase {
           xSpeedDelivered,
           ySpeedDelivered,
           thetaDelivered,
-          Rotation2d.fromDegrees(navX.getAngle()));
+          Rotation2d.fromDegrees(-navX.getAngle()));
     } else {
       desiredChassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, thetaDelivered);
     }
@@ -236,7 +236,7 @@ public class SwerveDrive extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    return Rotation2d.fromDegrees(navX.getAngle()).getDegrees();
+    return Rotation2d.fromDegrees(-navX.getAngle()).getDegrees();
   }
 
   /**
