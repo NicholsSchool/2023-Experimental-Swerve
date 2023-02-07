@@ -101,8 +101,8 @@ public final class Constants {
     public static final double kTurningMinOutput = -1;
     public static final double kTurningMaxOutput = 1;
 
-    public static final int kDrivingMotorCurrentLimit = 40; // amps
-    public static final int kTurningMotorCurrentLimit = 20; // amps
+    public static final int kDrivingMotorCurrentLimit = 30; // amps
+    public static final int kTurningMotorCurrentLimit = 15; // amps
   }
 
   public static final class OIConstants {
