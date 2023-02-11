@@ -53,6 +53,11 @@ public class SwerveDrive extends SubsystemBase {
   private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
 
+
+  private SlewRateLimiter xMagnitudeLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
+  private SlewRateLimiter yMagnitudeLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
+  private SlewRateLimiter thetaLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
+
   // Create odometry class for tracking estimated robot pose.
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
@@ -123,46 +128,50 @@ public class SwerveDrive extends SubsystemBase {
 
     if (rateLimit) {
 
-      // Convert X and Y to polar coordinates for rate limiting
-      double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
-      double inputTranslationMag = Math.sqrt(Math.pow(xSpeed, 2) + Math.pow(ySpeed, 2));
+      // // Convert X and Y to polar coordinates for rate limiting
+      // double inputTranslationDir = Math.atan2(ySpeed, xSpeed);
+      // double inputTranslationMag = Math.sqrt(Math.pow(xSpeed, 2) + Math.pow(ySpeed, 2));
 
-      // Calculate the direction slew rate based on lateral acceleration estimatation
-      double directionSlewRate;
-      if (m_currentTranslationMag != 0.0) {
-        directionSlewRate = Math.abs(DriveConstants.kDirectionSlewRate / m_currentTranslationMag);
-      } else {
-        directionSlewRate = 500.0; // high number means the slew rate is effectively instantaneous
-      }
+      // // Calculate the direction slew rate based on lateral acceleration estimatation
+      // double directionSlewRate;
+      // if (m_currentTranslationMag != 0.0) {
+      //   directionSlewRate = Math.abs(DriveConstants.kDirectionSlewRate / m_currentTranslationMag);
+      // } else {
+      //   directionSlewRate = 500.0; // high number means the slew rate is effectively instantaneous
+      // }
 
-      double currentTime = WPIUtilJNI.now() * 1e-6;
-      double elapsedTime = currentTime - m_prevTime;
-      double angleDif = SwerveUtils.AngleDifference(inputTranslationDir, m_currentTranslationDir);
-      if (angleDif < 0.45 * Math.PI) {
-        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
-            m_currentTranslationDir,
-            inputTranslationDir,
-            directionSlewRate * elapsedTime);
-        m_currentTranslationMag = magLimiter.calculate(inputTranslationMag);
-      } else if (angleDif > 0.85 * Math.PI) {
-        if (m_currentTranslationMag > 1e-4) { // small number to avoid floating-point errors with equality checking
-          m_currentTranslationMag = magLimiter.calculate(0.0);
-        } else {
-          m_currentTranslationDir = SwerveUtils.WrapAngle(m_currentTranslationDir + Math.PI);
-          m_currentTranslationMag = magLimiter.calculate(inputTranslationMag);
-        }
-      } else {
-        m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
-            m_currentTranslationDir,
-            inputTranslationDir,
-            directionSlewRate * elapsedTime);
-        m_currentTranslationMag = magLimiter.calculate(0.0);
-      }
-      m_prevTime = currentTime;
+      // double currentTime = WPIUtilJNI.now() * 1e-6;
+      // double elapsedTime = currentTime - m_prevTime;
+      // double angleDif = SwerveUtils.AngleDifference(inputTranslationDir, m_currentTranslationDir);
+      // if (angleDif < 0.45 * Math.PI) {
+      //   m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
+      //       m_currentTranslationDir,
+      //       inputTranslationDir,
+      //       directionSlewRate * elapsedTime);
+      //   m_currentTranslationMag = magLimiter.calculate(inputTranslationMag);
+      // } else if (angleDif > 0.85 * Math.PI) {
+      //   if (m_currentTranslationMag > 1e-4) { // small number to avoid floating-point errors with equality checking
+      //     m_currentTranslationMag = magLimiter.calculate(0.0);
+      //   } else {
+      //     m_currentTranslationDir = SwerveUtils.WrapAngle(m_currentTranslationDir + Math.PI);
+      //     m_currentTranslationMag = magLimiter.calculate(inputTranslationMag);
+      //   }
+      // } else {
+      //   m_currentTranslationDir = SwerveUtils.StepTowardsCircular(
+      //       m_currentTranslationDir,
+      //       inputTranslationDir,
+      //       directionSlewRate * elapsedTime);
+      //   m_currentTranslationMag = magLimiter.calculate(0.0);
+      // }
+      // m_prevTime = currentTime;
 
-      xSpeedCommanded = m_currentTranslationMag * Math.cos(m_currentTranslationDir);
-      ySpeedCommanded = m_currentTranslationMag * Math.sin(m_currentTranslationDir);
-      m_currentRotation = rotLimiter.calculate(theta);
+      // xSpeedCommanded = m_currentTranslationMag * Math.cos(m_currentTranslationDir);
+      // ySpeedCommanded = m_currentTranslationMag * Math.sin(m_currentTranslationDir);
+      // m_currentRotation = rotLimiter.calculate(theta);
+
+      xSpeedCommanded = xMagnitudeLimiter.calculate(xSpeed);
+      ySpeedCommanded = yMagnitudeLimiter.calculate(ySpeed);
+      m_currentRotation = thetaLimiter.calculate(theta);
 
     } else {
       xSpeedCommanded = xSpeed;
