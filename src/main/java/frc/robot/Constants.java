@@ -4,11 +4,28 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * This class provides a convenient place for numerical or boolean values.
  */
 public final class Constants {
+
+  // Set to the intended enum value (see options below)
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
+  // public static final Mode currentMode = Mode.SIM;
+  // public static final Mode currentMode = Mode.REPLAY;
+
+  public static enum Mode {
+    /** Running on a real robot. */
+    REAL,
+
+    /** Running a physics simulator. */
+    SIM,
+
+    /** Replaying from a log file. */
+    REPLAY
+  }
 
   public static final class DriveConstants {
 
@@ -133,17 +150,5 @@ public final class Constants {
     public static final double kMaxFreeSpeedRpm = 5676;
   }
 
-  public static final Mode currentMode = Mode.REAL;
-
-  public static enum Mode {
-    /** Running on a real robot. */
-    REAL,
-
-    /** Running a physics simulator. */
-    SIM,
-
-    /** Replaying from a log file. */
-    REPLAY
-  }
   
 }
