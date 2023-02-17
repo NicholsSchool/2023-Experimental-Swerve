@@ -61,11 +61,12 @@ public class Robot extends LoggedRobot {
     switch (Constants.currentMode) {
       // Running on a real robot, log to a USB stick
       case REAL:
+        // "/media/sda1/" is referencing the bottom USB port (the one closest the "NI" logo)
         logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
         logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 
         // @todo Note: This line may not be needed. Need to test with a real robot.
-        new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        new PowerDistribution(1, ModuleType.kCTRE); // Enables power distribution logging
         break;
 
       // Running a physics simulator, log to local folder
